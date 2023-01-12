@@ -22,5 +22,5 @@ sudo apt-get -y install containerd
 
 sudo mkdir -p /etc/containerd
 containerd config default | sudo tee /etc/containerd/config.toml
-sudo sed -i 's/SystemdCgroup \= false/SystemCgroup \=true/g' /etc/containerd/config.toml
+sudo sed -i 's/SystemdCgroup \= false/SystemCgroup \= true/g' /etc/containerd/config.toml
 sudo systemctl restart containerd 
