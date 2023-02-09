@@ -1,0 +1,26 @@
+#replica set template
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: replica-set-nginx
+  labels:
+    app: nginx-app
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: nginx-app-pod
+      labels:
+        app: nginx-app
+        type: front-end
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+  #creates 3 nginx containers
+  replicas: 3
+  selector: 
+    matchLabels:
+      type: front-end
+
+  #run "">kubectl get replicaset" to see output
