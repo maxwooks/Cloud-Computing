@@ -5,6 +5,7 @@ metadata:
   namespace: default
 spec:
   initContainers:
+  #initConainer waits for 20 seconds
   - command:
     - sh
     - -c
