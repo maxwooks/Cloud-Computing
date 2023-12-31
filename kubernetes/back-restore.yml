@@ -1,0 +1,61 @@
+#check the deployments
+kubectl get deployments
+
+#check the version of ECTD
+kubectl get pods -n kube-system
+kubectl describe pod etcd-controlplane
+
+#check the following information
+#Containers>etcd>Image
+#check for the address that can rach the ectd cluster form the controlplane
+#Command>etcd>
+--listen-client-urls=https://127.0.0.1:2379, https://ipaddress:2379
+
+#check where the etcd server certificate is located
+--cert-file=/etc/kubernetes/pki/etcd/server.crt
+
+#check where the etcd CA certificate
+--trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+
+#check where the etcd server.key file is stored
+--key-file=/etc/kubernetes/pki/etcd/server.key
+
+#backup the etcd database
+ETCDCTL_API=3 etcdctl snapshot
+export ETCDCTL_API=3
+
+etcdctl snapshot save --endpoints=127.0.0.1:2379 \
+--cacert=/etc/kubernetes/pki/etcd/ca.crt \
+--cert=/etc/kubernetes/pki/etcd/server.crt \
+--key=/etc/kubernetes/pki/etcd/server.key \
+#store the location of the backup
+/opt/snapshot-pre-boot.db
+
+
+#restore data to a new directory from save file /opt/snapshot-pre-boot.db
+etcdctl snapshot restore --data-dir /var/lib/etcd-from-backup /opt/snapshot-pre-boot.db
+
+vi /etc/kubernetes/manifests/etcd.yaml
+#change following file in 'type'
+volumes:
+  -hostPath:
+    path: /var/lib/etcd-from-backup
+    type: DirectoryOrCreate
+  name: etcd-data
+
+#kubelet will restart etcd after writing and saving file
+
+#confirm backup restored everything moves from pending to running state
+kubectl get pods -n kube-system --watch
+
+#if etcd-controlplane is stuck in pending state do the following
+kubectl delete pod etcd-controleplane -n kube-system
+
+#check deployments, pods, and services
+kubectl get deploy
+kubectl get pods
+kubectl get svc
+
+
+
+
